@@ -6,18 +6,26 @@ const main = async () => {
 	const res = await axios.get(
 		"https://infinite-cove-44078.herokuapp.com/today-simple-schedule",
 	);
-	const { todaySchedule } = await res.data;
 
 	await res.data.TodaySchedule.forEach(
-		({ Away, StartTimeEastern, StartDateEastern }) => {
-			const hour = parseInt(StartTimeEastern.split(":")[0]) - 1;
+		({ Away, Home, StartTimeEastern, StartDateEastern }) => {
+			const minute = parseInt(
+				StartTimeEastern.split(":")[1].substring(0, 2),
+			);
+
+			const isPM = StartTimeEastern.split(" ")[1] === "PM";
+
+			const hour = isPM
+				? parseInt(StartTimeEastern.split(":")[0]) + 12
+				: StartTimeEastern.split(":")[0];
+
 			const day = parseInt(
 				StartDateEastern.substr(StartDateEastern.length - 2),
 			);
-			const month = parseInt(StartDateEastern.substring(4, 6)) - 1;
-			const year = parseInt(StartDateEastern.substring(0, 4));
+			const month = parseInt(StartDateEastern.substring(4, 6));
 
-			const jobTime = new Date(year, month, day, hour, 0, 0);
+			const jobTime = `${minute} ${hour} ${day} ${month} *`;
+
 			const cancelJob = schedule.scheduleJob(jobTime, async () => {
 				const res = await axios.get(
 					`https://nba-notify-api.herokuapp.com/subscription?tricode=${Away}`,
