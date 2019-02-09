@@ -1,0 +1,25 @@
+{
+  "name": "nba-notify-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbrudner/nba-notify-node.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dbrudner/nba-notify-node/issues"
+  },
+  "homepage": "https://github.com/dbrudner/nba-notify-node#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dotenv": "^6.2.0",
+    "node-schedule": "^1.3.1"
+  }
+}
