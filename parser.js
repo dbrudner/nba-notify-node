@@ -43,8 +43,10 @@ class NBALivestreamsParser extends Parser {
 		const submission = await snoowrap
 			.getSubmission(thread)
 			.expandReplies({ limit: Infinity, depth: Infinity });
-		const split = submission.comments[0].body_html.split("href=");
-		const link = split.find(item => /http:\/\/ripple.is.*/.test(item));
+		const splitByHref = submission.comments[0].body_html.split("href=");
+		const link = splitByHref.find(item =>
+			/http:\/\/ripple.is.*/.test(item),
+		);
 		return link.split('"')[1];
 	}
 }
