@@ -1,31 +1,59 @@
 require("dotenv").config();
 const Snoowrap = require("snoowrap");
 
-const r = new Snoowrap({
-	userAgent: "reddit-bot-example-node",
-	clientId: process.env.CLIENT_ID,
-	clientSecret: process.env.CLIENT_SECRET,
-	username: process.env.REDDIT_USER,
-	password: process.env.REDDIT_PASS,
-});
-const getLink = team => {
-	r.getSubreddit("nbastreams")
-		.getHot()
-		.then(res => {
-			res.forEach(item => {
-				if (item.title)
-			});
+class Parser {
+	constructor(userAgent, clientId, clientSecret, username, password) {
+		this.userAgent = userAgent;
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
+		this.username = username;
+		this.password = password;
+	}
 
-			const thread = res.find(item => item.title.includes(team)).id
-			r.getSubmission(thread)
-				.expandReplies({ limit: Infinity, depth: Infinity })
-				.then(data => {
-					const split = data.comments[0].body_html.split("href=");
-					const link = split.find(item =>
-						/http:\/\/ripple.is.*/.test(item),
-					);
-					console.log(link.split('"')[1]);
-					// data.forEach(item => console.log(item));
-				});
+	createSnoowrap() {
+		return new Snoowrap({
+			userAgent: this.userAgent,
+			clientId: this.clientId,
+			clientSecret: this.clientSecret,
+			username: this.username,
+			password: this.password,
 		});
+	}
 }
+
+class NBALivestreamsParser extends Parser {
+	constructor(
+		userAgent,
+		clientId,
+		clientSecret,
+		username,
+		password,
+		tricode,
+	) {
+		super(userAgent, clientId, clientSecret, username, password);
+		this.tricode = tricode;
+	}
+
+	async getLink() {
+		const snoowrap = this.createSnoowrap();
+		const subReddit = await snoowrap.getSubreddit("hardwareswap").getHot();
+		const thread = await subReddit.find(item => item.title.includes(team))
+			.id;
+
+		const submission = await snoowrap
+			.getSubmission(thread)
+			.expandReplies({ limit: Infinity, depth: Infinity });
+		const split = submission.comments[0].body_html.split("href=");
+		const link = split.find(item => /http:\/\/ripple.is.*/.test(item));
+		return link.split('"')[1];
+	}
+}
+
+const parser = new NBALivestreamsParser(
+	"reddit-bot-example-node",
+	process.env.CLIENT_ID,
+	process.env.CLIENT_SECRET,
+	process.env.REDDIT_USER,
+	process.env.REDDIT_PASS,
+	"lal",
+);
