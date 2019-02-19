@@ -51,11 +51,4 @@ class NBALivestreamsParser extends Parser {
 	}
 }
 
-const parser = new NBALivestreamsParser(
-	"reddit-bot-example-node",
-	process.env.CLIENT_ID,
-	process.env.CLIENT_SECRET,
-	process.env.REDDIT_USER,
-	process.env.REDDIT_PASS,
-	"lal",
-);
+module.exports = NBALivestreamsParser;
