@@ -31,84 +31,40 @@ const main = async () => {
 
 			const month = StartDateEastern.substring(4, 6);
 
-			const jobTime = `${59} ${hour - 1} ${day} ${month} *`;
-			console.log(jobTime);
+			const jobTime = `${2} ${hour} ${day} ${month} *`;
+
 			const cancelJob = schedule.scheduleJob(jobTime, async () => {
-				console.log("HI");
-				await axios.get(
-					`https://nba-notify-api.herokuapp.com/subscription?tricode=${Away}`,
+				const awaySubscriptionsResponse = await axios.get(
+					`https://nba-notify-api.herokuapp.com/subscription?tricode=lal`,
 				);
-				const data = await res.data;
 
-				axios
-					.get(
-						`https://nba-notify-api.herokuapp.com/subscription?tricode=${Away}`,
-					)
-					.then(res => {
-						console.log(res);
-						console.log(res.data.subscription.userTokens);
+				const homeSubscriptionsResponse = await axios.get(
+					`https://nba-notify-api.herokuapp.com/subscription?tricode=chi`,
+				);
 
-						r.getSubreddit("nbastreams")
-							.getHot()
-							.then(res => {
-								console.log("HI");
+				const [
+					awaySubscriptions,
+					homeSubscriptions,
+				] = await Promise.all([
+					awaySubscriptionsResponse,
+					homeSubscriptionsResponse,
+				]);
 
-								const thread = res.find(item =>
-									item.title.includes(
-										teamCodes[Away.toLowerCase()],
-									),
-								).id;
-								r.getSubmission(thread)
-									.expandReplies({
-										limit: Infinity,
-										depth: Infinity,
-									})
-									.then(data => {
-										console.log("HI");
+				const subscriptions = [
+					...awaySubscriptions.data,
+					...homeSubscriptions.data,
+				];
+				subscriptions.forEach(sub => {
+					const notification = new Notification(
+						Away,
+						Home,
+						StartTimeEastern,
+						sub.userToken,
+						process.env.SERVER_KEY,
+					);
 
-										const split = data.comments[0].body_html.split(
-											"href=",
-										);
-										const link = split
-											.find(item =>
-												/http:\/\/ripple.is.*/.test(
-													item,
-												),
-											)
-											.split('"')[1];
-
-										res.data.subscription.userTokens.forEach(
-											async userToken => {
-												console.log(link);
-												const notification = {
-													notification: {
-														title:
-															"NBA game started",
-														body: `${Away} vs. ${Home} started at ${StartTimeEastern}`,
-														click_action: link,
-														requireInteraction: true,
-													},
-													to: userToken,
-												};
-
-												axios.post(
-													"https://fcm.googleapis.com/fcm/send",
-													notification,
-													{
-														headers: {
-															"Content-Type":
-																"application/json",
-															Authorization:
-																process.env
-																	.SERVER_KEY,
-														},
-													},
-												);
-											},
-										);
-									});
-							});
-					});
+					notification.sendNotification();
+				});
 			});
 		},
 	);
