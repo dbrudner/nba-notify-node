@@ -1,16 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
 const schedule = require("node-schedule");
-const Snoowrap = require("snoowrap");
-const teamCodes = require("./team-codes");
-
-const r = new Snoowrap({
-	userAgent: "reddit-bot-example-node",
-	clientId: process.env.CLIENT_ID,
-	clientSecret: process.env.CLIENT_SECRET,
-	username: process.env.REDDIT_USER,
-	password: process.env.REDDIT_PASS,
-});
 
 const main = async () => {
 	const res = await axios.get(
