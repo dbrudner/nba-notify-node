@@ -1,5 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
+const Parser = require("parser");
 
 class Notification {
 	constructor(away, home, startTimeEastern, userToken, serverKey) {
