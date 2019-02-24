@@ -1,6 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
-const Parser = require("parser");
+const Parser = require("./parser");
 
 class Notification {
 	constructor(away, home, startTimeEastern, userToken, serverKey) {
@@ -17,22 +17,25 @@ class Notification {
 		}`;
 	}
 
-	createNotification() {
+	async createNotification() {
+		const parser = new Parser(this.away);
+		const link = await parser.getLink();
 		return {
 			notification: {
 				title: "NBA game started",
 				body: this.createNotificationBody(),
-				click_action: "https://google.com",
+				click_action: link,
 				requireInteraction: true,
 			},
 			to: this.userToken,
 		};
 	}
 
-	sendNotification() {
-		axios.post(
+	async sendNotification() {
+		const body = await this.createNotification();
+		const response = await axios.post(
 			"https://fcm.googleapis.com/fcm/send",
-			this.createNotification(),
+			body,
 			{
 				headers: {
 					"Content-Type": "application/json",

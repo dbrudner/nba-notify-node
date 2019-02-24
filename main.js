@@ -18,7 +18,7 @@ const main = async () => {
 			const day = StartDateEastern.substr(StartDateEastern.length - 2);
 			const month = StartDateEastern.substring(4, 6);
 
-			const jobTime = `30 ${35} ${19} ${day} ${month} *`;
+			const jobTime = `${39} ${20} ${day} ${month} *`;
 			const cancelJob = schedule.scheduleJob(jobTime, async () => {
 				try {
 					const awaySubscriptionsResponse = await axios.get(
