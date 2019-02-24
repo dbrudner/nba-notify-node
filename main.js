@@ -1,6 +1,7 @@
 require("dotenv").config();
 const axios = require("axios");
 const schedule = require("node-schedule");
+const Notification = require("./notification");
 
 const main = async () => {
 	const res = await axios.get(
@@ -17,40 +18,42 @@ const main = async () => {
 			const day = StartDateEastern.substr(StartDateEastern.length - 2);
 			const month = StartDateEastern.substring(4, 6);
 
-			const jobTime = `${2} ${hour} ${day} ${month} *`;
-
+			const jobTime = `${17} ${19} ${day} ${month} *`;
 			const cancelJob = schedule.scheduleJob(jobTime, async () => {
-				const awaySubscriptionsResponse = await axios.get(
-					`https://nba-notify-api.herokuapp.com/subscription?tricode=lal`,
-				);
-				const homeSubscriptionsResponse = await axios.get(
-					`https://nba-notify-api.herokuapp.com/subscription?tricode=chi`,
-				);
-
-				const [
-					awaySubscriptions,
-					homeSubscriptions,
-				] = await Promise.all([
-					awaySubscriptionsResponse,
-					homeSubscriptionsResponse,
-				]);
-
-				const subscriptions = [
-					...awaySubscriptions.data,
-					...homeSubscriptions.data,
-				];
-
-				subscriptions.forEach(sub => {
-					const notification = new Notification(
-						Away,
-						Home,
-						StartTimeEastern,
-						sub.userToken,
-						process.env.SERVER_KEY,
+				try {
+					const awaySubscriptionsResponse = await axios.get(
+						`https://nba-notify-api.herokuapp.com/subscription?tricode=${Away}`,
+					);
+					const homeSubscriptionsResponse = await axios.get(
+						`https://nba-notify-api.herokuapp.com/subscription?tricode=${Home}`,
 					);
 
-					notification.sendNotification();
-				});
+					const [
+						awaySubscriptions,
+						homeSubscriptions,
+					] = await Promise.all([
+						awaySubscriptionsResponse,
+						homeSubscriptionsResponse,
+					]);
+
+					const userTokens = [
+						...awaySubscriptions.data.subscription.userTokens,
+						...homeSubscriptions.data.subscription.userTokens,
+					];
+
+					userTokens.forEach(token => {
+						const notification = new Notification(
+							Away,
+							Home,
+							StartTimeEastern,
+							token,
+							process.env.SERVER_KEY,
+						);
+						notification.sendNotification();
+					});
+				} catch (err) {
+					// Fix API to handle no subscriptions for team
+				}
 			});
 		},
 	);

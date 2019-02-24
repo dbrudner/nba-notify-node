@@ -1,3 +1,4 @@
+require("dotenv").config();
 const axios = require("axios");
 
 class Notification {
@@ -10,18 +11,20 @@ class Notification {
 	}
 
 	createNotificationBody() {
-		return `${away} vs. ${home} started at ${startTimeEastern}`;
+		return `${this.away} vs. ${this.home} started at ${
+			this.startTimeEastern
+		}`;
 	}
 
 	createNotification() {
 		return {
 			notification: {
 				title: "NBA game started",
-				body: createNotificationBody(),
-				click_action: link,
+				body: this.createNotificationBody(),
+				click_action: "https://google.com",
 				requireInteraction: true,
 			},
-			to: userToken,
+			to: this.userToken,
 		};
 	}
 
@@ -32,7 +35,7 @@ class Notification {
 			{
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: serverKey,
+					Authorization: this.serverKey,
 				},
 			},
 		);
